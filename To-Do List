@@ -1,0 +1,88 @@
+# To-Do List Application 
+# Using OOP + Tkinter GUI
+import tkinter as tk
+from tkinter import messagebox
+class ToDoListApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Smart To-Do List")
+        self.root.geometry("400x450")
+        self.root.config(bg="#f5f5f5")
+
+        self.tasks = []
+
+        # Title Label
+        tk.Label(root, text="Smart To-Do List", font=("Arial", 18, "bold"), bg="#f5f5f5", fg="#333").pack(pady=10)
+
+        # Task Entry
+        self.task_var = tk.StringVar()
+        tk.Entry(root, textvariable=self.task_var, width=35, font=("Arial", 12)).pack(pady=8)
+
+        # Buttons Frame
+        btn_frame = tk.Frame(root, bg="#f5f5f5")
+        btn_frame.pack(pady=10)
+
+        tk.Button(btn_frame, text="Add Task", command=self.add_task, bg="#4CAF50", fg="white", width=12).grid(row=0, column=0, padx=5)
+        tk.Button(btn_frame, text="Edit Task", command=self.edit_task, bg="#FFA500", fg="white", width=12).grid(row=0, column=1, padx=5)
+        tk.Button(btn_frame, text="Delete Task", command=self.delete_task, bg="#E74C3C", fg="white", width=12).grid(row=0, column=2, padx=5)
+
+        # Listbox for Tasks
+        self.listbox = tk.Listbox(root, width=45, height=15, font=("Arial", 12), selectmode=tk.SINGLE)
+        self.listbox.pack(pady=10)
+
+        # Footer Buttons
+        tk.Button(root, text="Mark as Done", command=self.mark_done, bg="#2196F3", fg="white", width=15).pack(pady=5)
+        tk.Button(root, text="Clear All", command=self.clear_all, bg="#9C27B0", fg="white", width=15).pack(pady=5)
+
+    def add_task(self):
+        task = self.task_var.get().strip()
+        if task == "":
+            messagebox.showwarning("Input Error", "Please enter a task.")
+        else:
+            self.tasks.append(task)
+            self.update_listbox()
+            self.task_var.set("")
+
+    def edit_task(self):
+        try:
+            selected_index = self.listbox.curselection()[0]
+            new_task = self.task_var.get().strip()
+            if new_task == "":
+                messagebox.showwarning("Input Error", "Please enter the new task text.")
+            else:
+                self.tasks[selected_index] = new_task
+                self.update_listbox()
+                self.task_var.set("")
+        except IndexError:
+            messagebox.showwarning("Selection Error", "Please select a task to edit.")
+
+    def delete_task(self):
+        try:
+            selected_index = self.listbox.curselection()[0]
+            del self.tasks[selected_index]
+            self.update_listbox()
+        except IndexError:
+            messagebox.showwarning("Selection Error", "Please select a task to delete.")
+
+    def mark_done(self):
+        try:
+            selected_index = self.listbox.curselection()[0]
+            self.tasks[selected_index] = f"✔ {self.tasks[selected_index]}"
+            self.update_listbox()
+        except IndexError:
+            messagebox.showwarning("Selection Error", "Select a task to mark as done.")
+
+    def clear_all(self):
+        if messagebox.askyesno("Clear All", "Are you sure you want to delete all tasks?"):
+            self.tasks.clear()
+            self.update_listbox()
+
+    def update_listbox(self):
+        self.listbox.delete(0, tk.END)
+        for idx, task in enumerate(self.tasks, start=1):
+            self.listbox.insert(tk.END, f"{idx}. {task}")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ToDoListApp(root)
+    root.mainloop()
